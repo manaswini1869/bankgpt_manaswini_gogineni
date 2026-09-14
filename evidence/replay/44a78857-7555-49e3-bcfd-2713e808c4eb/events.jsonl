@@ -1,0 +1,4 @@
+{"timestamp": "2026-09-14T02:14:50.023957+00:00", "event": "replay_started", "run_id": "44a78857-7555-49e3-bcfd-2713e808c4eb", "capability_id": "lookup_member_balance", "version": 1, "inputs": {"member_id": "99999"}}
+{"timestamp": "2026-09-14T02:14:50.709339+00:00", "event": "step_started", "run_id": "44a78857-7555-49e3-bcfd-2713e808c4eb", "index": 0, "step_id": "enter_member", "action": "fill"}
+{"timestamp": "2026-09-14T02:14:50.750602+00:00", "event": "step_succeeded", "run_id": "44a78857-7555-49e3-bcfd-2713e808c4eb", "step_id": "enter_member", "outputs": {}}
+{"timestamp": "2026-09-14T02:14:50.750740+00:00", "event": "step_started", "run_id": "44a78857-7555-49e3-bcfd-2713e808c4eb", "index": 1, "step_id": "search", "action": "click"}

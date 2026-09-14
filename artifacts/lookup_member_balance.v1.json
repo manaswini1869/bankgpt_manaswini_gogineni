@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0",
+  "id": "lookup_member_balance",
+  "version": 1,
+  "name": "Look up member balance",
+  "description": "Look up a member and return their savings balance.",
+  "target_app": "bank-demo",
+  "entrypoint": "http://127.0.0.1:8000",
+  "inputs": {
+    "member_id": {
+      "type": "string",
+      "description": "Bank member identifier",
+      "required": true
+    }
+  },
+  "outputs": {
+    "savings_balance": {
+      "type": "number",
+      "description": "Current savings balance"
+    }
+  },
+  "steps": [
+    {
+      "id": "enter_member",
+      "action": "fill",
+      "target": {
+        "locator": {
+          "strategy": "label",
+          "value": "Member ID",
+          "rationale": "Semantic form label is more stable than a generated CSS class."
+        }
+      },
+      "value": "{{member_id}}",
+      "timeout_ms": 5000,
+      "retry_count": 1
+    },
+    {
+      "id": "search",
+      "action": "click",
+      "target": {
+        "locator": {
+          "strategy": "role",
+          "value": "button",
+          "name": "Search",
+          "rationale": "Accessible button role/name is stable for replay."
+        }
+      },
+      "timeout_ms": 5000,
+      "retry_count": 1
+    },
+    {
+      "id": "extract_balance",
+      "action": "extract",
+      "target": {
+        "locator": {
+          "strategy": "label",
+          "value": "Savings Balance",
+          "rationale": "Accessible label gives a semantic extraction target."
+        }
+      },
+      "output": "savings_balance",
+      "timeout_ms": 5000,
+      "retry_count": 1
+    }
+  ],
+  "checkpoint": {
+    "strategy": "text",
+    "expected": "Member Details"
+  },
+  "policy": {
+    "allowed_actions": ["navigate", "fill", "click", "extract", "wait"],
+    "allowed_domains": ["127.0.0.1", "localhost"],
+    "risk": "read_only"
+  }
+}

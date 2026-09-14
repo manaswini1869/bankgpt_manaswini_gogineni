@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+<head><title>Internal Banking Console</title></head>
+<body>
+<main>
+  <h1>Internal Banking Console</h1>
+  <h2>Member Search</h2>
+  <form action="/search" method="get">
+    <label for="member-id">Member ID</label>
+    <input id="member-id" name="member_id" aria-label="Member ID" value="{{ member_id or '' }}" />
+    <button type="submit">Search</button>
+  </form>
+  {% if demo_error %}<p role="alert">Temporary application error. Please retry.</p>{% endif %}
+  {% if not_found %}<p role="alert">Member not found</p>{% endif %}
+  <p>Demo members: 12345, 67890</p>
+</main>
+</body>
+</html>

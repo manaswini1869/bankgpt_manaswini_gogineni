@@ -1,0 +1,5 @@
+[console_scripts]
+agent = app.agent.cli:main
+generate = app.generator.cli:main
+replay = app.replay.cli:main
+serve = app.main:run

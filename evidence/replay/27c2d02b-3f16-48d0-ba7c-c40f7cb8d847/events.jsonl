@@ -1,0 +1,8 @@
+{"timestamp": "2026-09-14T02:14:04.587479+00:00", "event": "replay_started", "run_id": "27c2d02b-3f16-48d0-ba7c-c40f7cb8d847", "capability_id": "lookup_member_balance", "version": 1, "inputs": {"member_id": "12345"}}
+{"timestamp": "2026-09-14T02:14:08.151880+00:00", "event": "step_started", "run_id": "27c2d02b-3f16-48d0-ba7c-c40f7cb8d847", "index": 0, "step_id": "enter_member", "action": "fill"}
+{"timestamp": "2026-09-14T02:14:08.190633+00:00", "event": "step_succeeded", "run_id": "27c2d02b-3f16-48d0-ba7c-c40f7cb8d847", "step_id": "enter_member", "outputs": {}}
+{"timestamp": "2026-09-14T02:14:08.190906+00:00", "event": "step_started", "run_id": "27c2d02b-3f16-48d0-ba7c-c40f7cb8d847", "index": 1, "step_id": "search", "action": "click"}
+{"timestamp": "2026-09-14T02:14:08.856435+00:00", "event": "step_succeeded", "run_id": "27c2d02b-3f16-48d0-ba7c-c40f7cb8d847", "step_id": "search", "outputs": {}}
+{"timestamp": "2026-09-14T02:14:08.858406+00:00", "event": "step_started", "run_id": "27c2d02b-3f16-48d0-ba7c-c40f7cb8d847", "index": 2, "step_id": "extract_balance", "action": "extract"}
+{"timestamp": "2026-09-14T02:14:08.861199+00:00", "event": "step_succeeded", "run_id": "27c2d02b-3f16-48d0-ba7c-c40f7cb8d847", "step_id": "extract_balance", "outputs": {"savings_balance": 12450.5}}
+{"timestamp": "2026-09-14T02:14:08.862282+00:00", "event": "replay_succeeded", "run_id": "27c2d02b-3f16-48d0-ba7c-c40f7cb8d847", "outputs": {"savings_balance": 12450.5}}

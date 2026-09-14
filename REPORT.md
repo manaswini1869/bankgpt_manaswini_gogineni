@@ -1,130 +1,35 @@
 # Architecture
 
-Using Python + FastAPI + Playwright + Pydantic + SQLite/JOSN Artifacts
+The system is a modular monolith with four primary paths: LLM discovery, deterministic replay, an agent-facing capability catalog, and artifact-driven code generation. The key boundary is the capability artifact. The discovery agent is probabilistic; replay is deterministic and never calls the LLM for decisions. FastAPI exposes saved artifacts as typed capabilities, while the code generator compiles the same artifact into a runnable Playwright test.
 
-1. Implemented Architecture 
+Python was chosen for its LLM, Pydantic, and browser-automation ecosystem. Playwright was chosen over coordinate-based computer use for the implemented surface because it provides semantic locators, explicit waits, extraction, screenshots, and deterministic replay. The surface is abstracted so a legacy-web or desktop adapter can be added later.
 
-```
+# Artifact schema
 
-                         ┌─────────────────────┐
-                         │   Natural language  │
-                         │       Goal          │
-                         └──────────┬──────────┘
-                                    │
-                                    ▼
-                         ┌─────────────────────┐
-                         │   Discovery Agent   │
-                         │                     │
-                         │  Observe → Decide   │
-                         │       → Act         │
-                         └──────────┬──────────┘
-                                    │
-                             successful run
-                                    │
-                                    ▼
-                    ┌──────────────────────────────┐
-                    │      Capability Artifact     │
-                    │                              │
-                    │ inputs / outputs / steps     │
-                    │ locators / checkpoints       │
-                    │ errors / safety / version    │
-                    └───────┬──────────────┬───────┘
-                            │              │
-               ┌────────────┘              └─────────────┐
-               ▼                                         ▼
-    ┌─────────────────────┐                   ┌─────────────────────┐
-    │ Deterministic       │                   │ Code Generator      │
-    │ Replay Engine       │                   │                     │
-    │                     │                   │ Playwright test /   │
-    │ NO LLM decisions    │                   │ page object         │
-    └──────────┬──────────┘                   └─────────────────────┘
-               │
-               ▼
-    ┌─────────────────────┐
-    │ Agent Capability API│
-    │                     │
-    │ list_capabilities() │
-    │ invoke_capability() │
-    └──────────┬──────────┘
-               │
-               ▼
-          AI Agent
+Artifacts are versioned Pydantic models serialized to JSON. They contain capability identity/version, the target application, typed inputs/outputs, ordered actions, locator strategy plus rationale, a checkpoint, and safety policy. Raw LLM transcripts are kept as evidence instead of being used as the production automation contract.
 
-```
-Dependency Direction
+The artifact is intentionally richer than a selector list. It gives both a calling agent and a human reviewer enough information to understand what the capability requires, what it returns, and how each target was selected.
 
-```
-Agent ────────────────┐
-                      │
-Generator ────────────┼──> Artifact
-                      │
-Capability API ───────┤
-                      │
-Replay Engine ────────┘
-```
+# Determinism & error handling
 
-The Artifact is the stable contract as every component has a exactly one dependency.
+Replay executes the stored step sequence without model decisions. Targeting prefers semantic strategies (test id, role/name, label, text, then CSS). Steps have bounded retries and timeouts, and the final checkpoint is explicitly verified. The result contract distinguishes success, expected business outcomes, recoverable conditions, and hard failures.
 
-2. 
+The demo treats `MEMBER_NOT_FOUND` as a business outcome. Evidence includes JSONL events plus a failure screenshot. A transient-error simulation is provided for manual testing.
 
-| Approach   | Pros                                                                                                                                                                                                 | Cons                                                                                                                                                                       |
-| :--------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Screenshot | - Closest to true computer use<br>- Works when DOM is terrible<br>- Naturally extends toward desktop applications                                                                                | - Much harder to make deterministic<br>- Coordinate replay is fragile<br>- Harder to extract structured data<br>- Harder to demonstrate reliable locator strategy<br>- More difficult to test |
-| Playwright | - Excellent deterministic replay<br>- Easy screenshots/traces<br>- Easy extraction<br>- Easy testing<br>- Strong waiting primitives<br>- Can use accessibility-oriented locators<br>- Fast to implement | - Doesn't demonstrate the hardest possible legacy surface<br>- DOM assumptions can become brittle<br>- Doesn't directly solve native desktop automation                    |
+# Heterogeneity & multi-tenant
 
+The artifact depends on an abstract surface contract rather than browser-specific operations. Playwright is the concrete implementation here. A legacy web or desktop implementation can translate the same semantic Target/Action model into the appropriate automation primitives.
 
-3. I have decided to make sure that the artifact describes intent and execution, but does not contain an LLM transcript. Which aligns with the requirement for a structured reusable artifact decoupled from the model transcript. I am keeping the generated code out of the artifact this could lead to having two representation that can diverge. I am making this decision to make sure that the artifact remains the single sources of truth.
+For many institutions running the same vendor application, the artifact identity/version can be shared at a base application level, with tenant/version-specific overrides applied to target definitions or entrypoints. Replay should record application version and failure telemetry so drift can be detected without silently changing the artifact.
 
-4. Process
+# Escalation & handoff
 
-
-| Option         | Benefit                 | Cost                                           |
-| -------------- | ----------------------- | ---------------------------------------------- |
-| Single process | Simple, fast, easy demo | Less operational isolation                     |
-| Microservices  | Scalable independently  | Huge complexity                                |
-| Queue-based    | Async/scalable          | Adds infrastructure without evaluation benefit |
-
-
-I have used one process where internally each implementation is in a separate modules. 
-
-
-```
-                 DISCOVERY
-                    │
-              LLM can reason
-                    │
-                    ▼
-             Surface Adapter
-                    │
-                    ▼
-             Artifact Builder
-                    │
-                    ▼
-             ┌──────────────┐
-             │   ARTIFACT   │
-             └──────┬───────┘
-                    │
-        ┌───────────┼───────────┐
-        ▼           ▼           ▼
-      Replay      Generate    Capability
-       Engine       Code        API
-        │           │           │
-        └───────────┼───────────┘
-                    ▼
-             deterministic
-                execution
-```
-
-- LLM is only in the discovery path.
-- The capability API must never call the LLM to figure out what button to press.
-
-
-# Artifact Schema
-
-# Determinism & Error handling
-
-# Heterogenity & multi-tenant
+The handoff model represents automation ownership explicitly: automating, human control, resume requested, and back to automation. The demo API exposes escalation and resume endpoints and keeps run state in memory. The intended seam is a persistent session manager holding the same browser context while automation pauses, a human operates the visible session, and automation resumes.
 
 # Safety
 
+A policy engine validates the artifact before replay and checks every action at execution time. Domains and action types are allowlisted. Risky capabilities are rejected in this demo rather than silently executed. Logging passes structured data through a redaction layer that removes secret/token/password-like fields. The local demo contains synthetic member data only.
+
 # Cuts
+
+I deliberately left out Kubernetes, distributed queues/workers, production authentication, a persistent artifact database, desktop automation, advanced visual computer use, and an elaborate operator UI. These would add infrastructure breadth without strengthening the core vertical slice. A production implementation would add persistent artifact/session storage, tenant/version resolution, richer operator tooling, stronger approval workflows, and additional surface adapters.

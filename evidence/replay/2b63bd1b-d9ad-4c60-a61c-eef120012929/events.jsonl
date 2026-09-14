@@ -1,0 +1,2 @@
+{"timestamp": "2026-09-13T21:15:15.132167+00:00", "event": "replay_started", "run_id": "2b63bd1b-d9ad-4c60-a61c-eef120012929", "capability_id": "lookup_member_balance", "version": 1, "inputs": {"member_id": "99999"}}
+{"timestamp": "2026-09-13T21:15:15.794866+00:00", "event": "replay_failed", "run_id": "2b63bd1b-d9ad-4c60-a61c-eef120012929", "step_id": null, "error": "Page.goto: net::ERR_BLOCKED_BY_ADMINISTRATOR at http://127.0.0.1:8000/\nCall log:\n  - navigating to \"http://127.0.0.1:8000/\", waiting until \"domcontentloaded\"\n"}
