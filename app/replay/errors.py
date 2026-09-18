@@ -6,10 +6,6 @@ class BusinessOutcome(ReplayError):
     code = "BUSINESS_OUTCOME"
 
 
-class MemberNotFound(BusinessOutcome):
-    code = "MEMBER_NOT_FOUND"
-
-
 class RecoverableReplayError(ReplayError):
     code = "RECOVERABLE"
 

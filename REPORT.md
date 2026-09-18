@@ -14,7 +14,7 @@ The artifact is intentionally richer than a selector list. It gives both a calli
 
 Replay executes the stored step sequence without model decisions. Targeting prefers semantic strategies (test id, role/name, label, text, then CSS). Steps have bounded retries and timeouts, and the final checkpoint is explicitly verified. The result contract distinguishes success, expected business outcomes, recoverable conditions, and hard failures.
 
-The demo treats `MEMBER_NOT_FOUND` as a business outcome. Evidence includes JSONL events plus a failure screenshot. A transient-error simulation is provided for manual testing.
+The demo maps configured page markers such as `Member not found` to the `BUSINESS_OUTCOME` result status, rather than hard-coding one banking domain error. Evidence includes JSONL events plus a failure screenshot. A transient-error simulation is provided for manual testing.
 
 # Heterogeneity & multi-tenant
 

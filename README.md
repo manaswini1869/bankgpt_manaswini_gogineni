@@ -1,6 +1,6 @@
-# Computer-Use Automation System
+# BankGPT
 
-A small implementation of the interface.ai take-home: an LLM discovers a UI workflow once, the workflow becomes a typed capability artifact, and production invocations replay the artifact deterministically without LLM decisions.
+A small implementation of the interface.ai take-home: an LLM discovers a UI workflow once, the workflow becomes a typed capability artifact, and production invocations replay the artifact deterministically without LLM decisions. The workflow is bank-site agnostic: entrypoints, semantic locators, inputs, extracted outputs, checkpoints, domains, and page outcomes are artifact configuration rather than member-balance code.
 
 ## Architecture
 
@@ -64,7 +64,7 @@ Business-outcome path:
 python -m app.replay.cli artifacts/lookup_member_balance.v1.json --member-id 99999
 ```
 
-This should return `business_outcome` / `MEMBER_NOT_FOUND` rather than crashing.
+This should return `business_outcome` / `BUSINESS_OUTCOME` rather than crashing.
 
 ## Phase 6: capability interface
 
@@ -106,13 +106,29 @@ The generated test is written to `generated/`. The generator uses the artifact a
 
 Set `OPENAI_API_KEY` and optionally change `OPENAI_MODEL` in `.env`.
 
-Start the demo app first, then:
+Start the target bank web app first, then provide its entrypoint and workflow metadata:
 
 ```bash
-python -m app.agent.cli "Look up member 12345 and return their savings balance"
+python -m app.agent.cli \
+  "Find account 12345 and return its available balance" \
+  --entrypoint https://bank.example.test/accounts \
+  --capability-id account_balance \
+  --name "Find account balance" \
+  --input account_id:string=Bank account identifier \
+  --output available_balance:number=Current available balance \
+  --checkpoint "Account details" \
+  --allowed-domain bank.example.test
 ```
 
 The discovery run is saved under `evidence/discovery/<run-id>/` and the artifact under `artifacts/`.
+
+Discovery can record `navigate`, `click`, `fill`, `extract`, and `wait` actions. Use `--business-marker text=message` and `--recoverable-marker text=message` for site-specific page outcomes. Login, MFA, transfers, payment approvals, and other risky actions are escalated for human control rather than replayed automatically.
+
+Replay arbitrary named inputs with:
+
+```bash
+python -m app.replay.cli artifacts/account_balance.v1.json --input account_id=12345
+```
 
 ## Simulated transient error
 

@@ -9,8 +9,6 @@ class PlaywrightCodeGenerator:
             "import pytest",
             "from playwright.async_api import Page, expect",
             "",
-            "MEMBER_ID = \"12345\"",
-            "",
             f"@pytest.mark.asyncio\nasync def test_{artifact.id}(page: Page):",
             f'    await page.goto({artifact.entrypoint!r})',
             "",
@@ -18,7 +16,7 @@ class PlaywrightCodeGenerator:
         input_defaults = {name: param.default for name, param in artifact.inputs.items()}
         for name in artifact.inputs:
             if input_defaults.get(name) is None:
-                input_defaults[name] = "12345"
+                input_defaults[name] = name.upper()
         for step in artifact.steps:
             if step.action == ActionType.NAVIGATE:
                 lines.append(f"    await page.goto({self._render_value(step.value, input_defaults)!r})")

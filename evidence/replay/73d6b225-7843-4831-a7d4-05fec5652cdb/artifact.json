@@ -10,7 +10,8 @@
     "member_id": {
       "type": "string",
       "description": "Bank member identifier",
-      "required": true
+      "required": true,
+      "default": null
     }
   },
   "outputs": {
@@ -27,10 +28,12 @@
         "locator": {
           "strategy": "label",
           "value": "Member ID",
+          "name": null,
           "rationale": "Semantic form label is more stable than a generated CSS class."
         }
       },
       "value": "{{member_id}}",
+      "output": null,
       "timeout_ms": 5000,
       "retry_count": 1
     },
@@ -45,6 +48,8 @@
           "rationale": "Accessible button role/name is stable for replay."
         }
       },
+      "value": null,
+      "output": null,
       "timeout_ms": 5000,
       "retry_count": 1
     },
@@ -55,9 +60,11 @@
         "locator": {
           "strategy": "label",
           "value": "Savings Balance",
+          "name": null,
           "rationale": "Accessible label gives a semantic extraction target."
         }
       },
+      "value": null,
       "output": "savings_balance",
       "timeout_ms": 5000,
       "retry_count": 1
@@ -68,8 +75,17 @@
     "expected": "Member Details"
   },
   "policy": {
-    "allowed_actions": ["navigate", "fill", "click", "extract", "wait"],
-    "allowed_domains": ["127.0.0.1", "localhost"],
+    "allowed_actions": [
+      "navigate",
+      "fill",
+      "click",
+      "extract",
+      "wait"
+    ],
+    "allowed_domains": [
+      "127.0.0.1",
+      "localhost"
+    ],
     "risk": "read_only"
   },
   "outcome_markers": {

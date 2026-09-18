@@ -86,6 +86,11 @@ class Policy(BaseModel):
     risk: RiskLevel = RiskLevel.READ_ONLY
 
 
+class OutcomeMarkers(BaseModel):
+    business: dict[str, str] = Field(default_factory=dict)
+    recoverable: dict[str, str] = Field(default_factory=dict)
+
+
 class CapabilityArtifact(BaseModel):
     schema_version: str = "1.0"
     id: str
@@ -99,6 +104,7 @@ class CapabilityArtifact(BaseModel):
     steps: list[Step] = Field(min_length=1)
     checkpoint: Checkpoint
     policy: Policy
+    outcome_markers: OutcomeMarkers = Field(default_factory=OutcomeMarkers)
 
 
 class RunResult(BaseModel):

@@ -3,11 +3,12 @@ from pydantic import BaseModel, Field
 
 
 class AgentAction(BaseModel):
-    action: Literal["navigate", "click", "fill", "wait", "finish", "escalate"]
+    action: Literal["navigate", "click", "fill", "extract", "wait", "finish", "escalate"]
     strategy: Literal["test_id", "role", "label", "text", "css"] | None = None
     value: str | None = None
     name: str | None = None
     target: str | None = None
+    output: str | None = None
     reason: str = Field(min_length=1)
 
 

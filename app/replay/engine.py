@@ -8,7 +8,7 @@ from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 from app.artifact.schema import ActionType, CapabilityArtifact, RunResult, RunStatus
 from app.artifact.store import ArtifactStore
 from app.evidence.logger import EvidenceLogger
-from app.replay.errors import MemberNotFound, RecoverableReplayError
+from app.replay.errors import BusinessOutcome, RecoverableReplayError
 from app.safety.policy import SafetyPolicy
 from app.surface.playwright import PlaywrightSurface
 
@@ -73,8 +73,8 @@ class ReplayEngine:
                 evidence_path=str(logger.path),
                 run_id=run_id,
             )
-        except MemberNotFound as exc:
-            await self._capture_failure(surface, logger, "member_not_found")
+        except BusinessOutcome as exc:
+            await self._capture_failure(surface, logger, "business_outcome")
             return RunResult(
                 status=RunStatus.BUSINESS_OUTCOME,
                 capability_id=artifact.id,
@@ -132,10 +132,12 @@ class ReplayEngine:
             await surface.wait(int(render(step.value, inputs) or 0))
 
         body = (await surface.observe())["text"]
-        if "Member not found" in body:
-            raise MemberNotFound("No member matched the supplied member ID")
-        if "Temporary application error" in body:
-            raise RecoverableReplayError("Temporary application error")
+        for marker, message in artifact.outcome_markers.business.items():
+            if marker in body:
+                raise BusinessOutcome(message)
+        for marker, message in artifact.outcome_markers.recoverable.items():
+            if marker in body:
+                raise RecoverableReplayError(message)
 
     async def _verify_checkpoint(self, surface, artifact):
         checkpoint = artifact.checkpoint

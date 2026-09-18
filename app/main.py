@@ -35,7 +35,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Computer-Use Automation API", lifespan=lifespan)
+app = FastAPI(title="BankGPT API", lifespan=lifespan)
 
 
 @app.get("/health")

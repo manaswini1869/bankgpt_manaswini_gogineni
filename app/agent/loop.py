@@ -18,7 +18,7 @@ class DiscoveryRecorder:
         if action in {"finish", "escalate"}:
             return
         locator = None
-        if action in {"click", "fill"}:
+        if action in {"click", "fill", "extract"}:
             from app.artifact.schema import Locator, Target
             locator = Target(locator=Locator(
                 strategy=decision.action.strategy or "text",
@@ -30,7 +30,8 @@ class DiscoveryRecorder:
             id=f"step_{len(self.steps)+1}",
             action=ActionType(action),
             target=locator,
-            value=decision.action.value if action == "fill" else None,
+            value=decision.action.value if action in {"navigate", "fill", "wait"} else None,
+            output=(decision.action.output or f"extracted_{len(self.steps)+1}") if action == "extract" else None,
         )
         self.steps.append(step)
         self.logger.event("action_recorded", action=decision.model_dump(mode="json"))
@@ -68,7 +69,7 @@ class DiscoveryAgent:
             await surface.close()
 
     def _check_decision(self, decision):
-        if decision.action.action not in {"navigate", "click", "fill", "wait"}:
+        if decision.action.action not in {"navigate", "click", "fill", "extract", "wait"}:
             raise ValueError(f"Unsupported discovery action: {decision.action.action}")
 
     async def _execute(self, surface, decision):
@@ -81,5 +82,8 @@ class DiscoveryAgent:
         elif a.action == "fill":
             from app.artifact.schema import Locator
             await surface.fill(Locator(strategy=a.strategy, value=a.target or "", name=a.name), a.value or "", 5000)
+        elif a.action == "extract":
+            from app.artifact.schema import Locator
+            await surface.extract(Locator(strategy=a.strategy, value=a.target or "", name=a.name), 5000)
         elif a.action == "wait":
             await surface.wait(int(a.value or 500))
